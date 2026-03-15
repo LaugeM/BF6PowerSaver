@@ -8,14 +8,15 @@ using System.Windows.Input;
 
 namespace BF6PowerSaver.Commands
 {
-    public class NavigateCommand : CommandBase
+    public class NavigateCommand<TViewModel> : CommandBase
+        where TViewModel : BaseViewModel
     {
         private readonly NavigationStore _navigationStore;
-        private readonly NavigationService _navigationService;
+        private readonly NavigationService<TViewModel> navigationService;
 
-        public NavigateCommand(NavigationService navigationService)
+        public NavigateCommand(NavigationService<TViewModel> navigationService)
         {
-            _navigationService = navigationService;
+            this.navigationService = navigationService;
         }
 
         public event EventHandler? CanExecuteChanged;
@@ -27,7 +28,7 @@ namespace BF6PowerSaver.Commands
 
         public override void Execute(object? parameter)
         {
-            _navigationService.Navigate();
+            navigationService.Navigate();
         }
     }
 }

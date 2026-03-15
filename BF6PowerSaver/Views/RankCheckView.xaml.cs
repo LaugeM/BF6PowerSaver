@@ -14,11 +14,11 @@ using System.Windows.Shapes;
 namespace BF6PowerSaver.Views
 {
     /// <summary>
-    /// Interaction logic for FirstView.xaml
+    /// Interaction logic for RankCheckView.xaml
     /// </summary>
-    public partial class FirstView : UserControl
+    public partial class RankCheckView : UserControl
     {
-        public FirstView()
+        public RankCheckView()
         {
             InitializeComponent();
         }

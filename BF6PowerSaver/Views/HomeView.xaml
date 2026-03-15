@@ -26,7 +26,10 @@
             FontSize="28"
             Text="Get EA ID" />
         <Label />
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,0,0,10"
+            Orientation="Horizontal">
             <Label
                 Width="115"
                 VerticalAlignment="Center"
@@ -44,20 +47,34 @@
                 Padding="5,2"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                Command="{Binding NavigateToFirstViewCommand}"
+                Command="{Binding LookupUsernameCommand}"
                 Content="Search" />
         </StackPanel>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
+        <StackPanel
+            Grid.Row="2"
+            Margin="0,0,0,10"
+            Orientation="Horizontal">
             <Label
                 Width="115"
                 VerticalAlignment="Center"
                 Content="PersonalID" />
-            <Border BorderBrush="Silver" BorderThickness="1" Height="25">
+            <Border
+                Height="25"
+                BorderBrush="Silver"
+                BorderThickness="1">
                 <TextBlock
                     Width="238"
                     Height="auto"
                     Text="{Binding PersonalId, UpdateSourceTrigger=PropertyChanged}" />
             </Border>
+            <Button
+                Margin="20,0,0,0"
+                Padding="5,2"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Command="{Binding Path=NavigateToRankCheckCommand, UpdateSourceTrigger=PropertyChanged}"
+                CommandParameter="{Binding}"
+                Content="Go to rankchecker" />
         </StackPanel>
     </Grid>
 </UserControl>

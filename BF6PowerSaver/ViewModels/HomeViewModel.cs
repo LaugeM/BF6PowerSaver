@@ -5,34 +5,63 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
+using BF6PowerSaver.Models;
+using BF6PowerSaver.Services.Network;
 
 namespace BF6PowerSaver.ViewModels
 {
     public class HomeViewModel : BaseViewModel
     {
-        private int username;
-        public int Username
+        HttpRequestService httpRequestService;
+
+        private string username;
+        public string Username
         {
             get { return username; }
-            set { username = value; OnPropertyChanged(nameof(Username)); }
+            set { username = value; OnPropertyChanged(); }
         }
 
         private int personalId;
-
         public int PersonalId
         {
             get { return personalId; }
-            set { personalId = value; OnPropertyChanged(nameof(personalId)); }
+            set
+            {
+                personalId = value;
+                OnPropertyChanged(nameof(PersonalId));
+                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            }
         }
 
-        public ICommand NavigateToFirstViewCommand { get; }
-        public ICommand NavigateToSecondViewCommand { get; }
+        public ICommand NavigateToRankCheckCommand { get; }
+        public ICommand LookupUsernameCommand { get; }
 
-        public HomeViewModel(NavigationStore navigationStore)
+        public HomeViewModel(SearchStore searchStore, NavigationStore navigationStore)
         {
-            //NavigationService navigationServiceFirstView = new NavigationService(navigationStore, () => new FirstViewModel(navigationStore));
-            
-            //NavigateToFirstViewCommand = new NavigateCommand(navigationServiceFirstView);
+            httpRequestService = new();
+
+            NavigationService<RankCheckViewModel> navigationService = new NavigationService<RankCheckViewModel>(
+                navigationStore,
+                () => new RankCheckViewModel(searchStore, navigationStore));
+
+            NavigateToRankCheckCommand = new NavigateToRankCheckCommand(this, searchStore, navigationService);
+            LookupUsernameCommand = new LookupUsernameCommand(this, searchStore);
         }
+
+        public bool CheckUsername()
+        {
+            return !string.IsNullOrWhiteSpace(Username);
+        }
+
+        public bool CheckPersonalId()
+        {
+            return PersonalId > 0;
+        }
+
+        public async void LookupUsername()
+        {
+            PersonalId = await httpRequestService.GetEaIdFromUsername(Username);
+        }
+
     }
 }

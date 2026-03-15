@@ -54,6 +54,30 @@ namespace BF6PowerSaver.Services.Network
                     $"Reason: {ex.Message}", ex);
             }
         }
+        public async Task<int> GetRankFromId(int personaId)
+        {
+            try
+            {
+                if (personaId <= 0)
+                    throw new ArgumentException("PersonaId cannot be zero or negative", nameof(personaId));
+                string url = $"https://api.gametools.network/bf6/profile/?playerid={personaId}&platform=pc&skip_battlelog=true";
 
+                using HttpResponseMessage response = await _client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                string json = await response.Content.ReadAsStringAsync();
+
+                GameToolsApiParser parser = new GameToolsApiParser();
+
+                return parser.RankParser(json);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"Failed to get rank from PersonaId: '{personaId}'. " +
+                    $"Reason: {ex.Message}", ex);
+            }
+        }
     }
+
 }

@@ -11,14 +11,16 @@ namespace BF6PowerSaver
     /// </summary>
     public partial class App : Application
     {
-        private NavigationStore _navigationStore;
+        private NavigationStore navigationStore;
+        private SearchStore searchStore;
         protected override void OnStartup(StartupEventArgs e)
         {
-            _navigationStore = new NavigationStore();
-            _navigationStore.CurrentViewModel = new HomeViewModel(_navigationStore);
+            navigationStore = new();
+            searchStore = new();
+            navigationStore.CurrentViewModel = new HomeViewModel(searchStore, navigationStore);
             MainWindow = new MainWindow()
             {
-                DataContext = new MainViewModel(_navigationStore)
+                DataContext = new MainViewModel(navigationStore)
             };
             MainWindow.Show();
 
