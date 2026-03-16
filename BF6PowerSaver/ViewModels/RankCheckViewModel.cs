@@ -19,14 +19,14 @@ namespace BF6PowerSaver.ViewModels
         public string Username => searchStore.CurrentResult?.Username;
         public int PersonalId => searchStore.CurrentResult.PersonalId;
 
-        private int rank;
-        public int Rank
+        private int currentRank;
+        public int CurrentRank
         {
-            get { return rank; }
+            get { return currentRank; }
             set
             {
-                rank = value;
-                OnPropertyChanged(nameof(rank));
+                currentRank = value;
+                OnPropertyChanged(nameof(currentRank));
                 System.Windows.Input.CommandManager.InvalidateRequerySuggested();
             }
         }
@@ -87,12 +87,12 @@ namespace BF6PowerSaver.ViewModels
 
         void OnRankUpdated(int newRank)
         {
-            Application.Current.Dispatcher.Invoke(() => Rank = newRank);
+            Application.Current.Dispatcher.Invoke(() => CurrentRank = newRank);
         }
 
         public async void LookupCurrentRank()
         {
-            Rank = await httpRequestService.GetRankFromId(PersonalId);
+            CurrentRank = await httpRequestService.GetRankFromId(PersonalId);
         }
     }
 }
