@@ -19,6 +19,18 @@ namespace BF6PowerSaver.ViewModels
         public string Username => searchStore.CurrentResult?.Username;
         public int PersonalId => searchStore.CurrentResult.PersonalId;
 
+        private int startRank;
+        public int StartRank
+        {
+            get { return startRank; }
+            set
+            {
+                startRank = value;
+                OnPropertyChanged(nameof(startRank));
+                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
         private int currentRank;
         public int CurrentRank
         {
@@ -75,6 +87,9 @@ namespace BF6PowerSaver.ViewModels
         // Start checker loop
         public void StartAutoRefresh()
         {
+            // Set StartRank before checking
+            SetStartRank();
+            // Begin checking every minute
             if (!rankRefreshService.IsRunning)
                 rankRefreshService.Start(PersonalId, TimeSpan.FromSeconds(60));
         }
@@ -90,6 +105,15 @@ namespace BF6PowerSaver.ViewModels
             Application.Current.Dispatcher.Invoke(() => CurrentRank = newRank);
         }
 
+        // Set StartRank
+
+
+        public async void SetStartRank()
+        {
+            StartRank = await httpRequestService.GetRankFromId(PersonalId);
+        }
+
+        // Lookup current rank once
         public async void LookupCurrentRank()
         {
             CurrentRank = await httpRequestService.GetRankFromId(PersonalId);
