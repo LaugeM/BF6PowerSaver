@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:BF6PowerSaver.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="235"
+    d:DesignWidth="400"
     mc:Ignorable="d">
     <Grid Background="White">
         <Grid.RowDefinitions>
@@ -16,12 +16,13 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Horizontal">
             <TextBlock
-                Margin="0,20,0,0"
+                Margin="0,0,0,0"
                 FontSize="28"
                 Text="Rank checker" />
         </StackPanel>
@@ -43,6 +44,7 @@
                 TextWrapping="Wrap" />
 
             <Button
+                Width="110"
                 Margin="20,0,0,0"
                 Padding="5,2"
                 HorizontalAlignment="Left"
@@ -76,8 +78,31 @@
                 VerticalAlignment="Top"
                 Text="{Binding RankGoal, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="Wrap" />
-        </StackPanel>
 
+            <ToggleButton
+                x:Name="ToggleRankCheckService"
+                Width="110"
+                Margin="18,0,0,0"
+                BorderBrush="ForestGreen"
+                BorderThickness="4"
+                Command="{Binding StartRankCheckerCommand}"
+                IsChecked="{Binding Running}">
+                <ToggleButton.Style>
+                    <Style TargetType="{x:Type ToggleButton}">
+                        <Setter Property="Foreground" Value="ForestGreen" />
+                        <Setter Property="BorderBrush" Value="ForestGreen" />
+                        <Setter Property="Content" Value="Start rank checker" />
+                        <Style.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="Red" />
+                                <Setter Property="BorderBrush" Value="Red" />
+                                <Setter Property="Content" Value="Stop rank checker" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+            </ToggleButton>
+        </StackPanel>
         <Button
             Grid.Row="3"
             Margin="0,20,0,0"

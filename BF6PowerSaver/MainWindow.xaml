@@ -8,8 +8,8 @@
     xmlns:viewmodels="clr-namespace:BF6PowerSaver.ViewModels"
     xmlns:views="clr-namespace:BF6PowerSaver.Views"
     Title="BF6PowerSaver"
-    Width="800"
-    Height="450"
+    Width="500"
+    Height="235"
     mc:Ignorable="d">
     <Grid>
         <ContentControl Content="{Binding CurrentViewModel}">
