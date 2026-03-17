@@ -14,7 +14,8 @@ namespace BF6PowerSaver.ViewModels
     {
         HttpRequestService httpRequestService;
         private readonly SearchStore searchStore;
-        readonly RankRefreshService rankRefreshService;
+        readonly RankMonitorService rankMonitorService;
+        readonly IShutdownService shutdownService;
 
         public string Username => searchStore.CurrentResult?.Username;
         public int PersonalId => searchStore.CurrentResult.PersonalId;
@@ -66,22 +67,36 @@ namespace BF6PowerSaver.ViewModels
             }
         }
 
+        private bool autoShutdownEnabled = true;
+        public bool AutoShutdownEnabled
+        {
+            get { return autoShutdownEnabled; }
+            set
+            {
+                autoShutdownEnabled = value;
+                OnPropertyChanged(nameof(autoShutdownEnabled));
+            }
+        }
+
         public ICommand NavigateToHomeViewCommand { get; }
         public ICommand LookupCurrentRankCommand { get; }
         public ICommand StartRankCheckerCommand { get; }
 
-        public RankCheckViewModel(SearchStore searchStore, NavigationStore navigationStore)
+        // Accept an optional shutdownService so callers can inject a test double.
+        public RankCheckViewModel(SearchStore searchStore, NavigationStore navigationStore, IShutdownService? shutdownService = null)
         {
-            httpRequestService = new();
+            this.httpRequestService = new();
             this.searchStore = searchStore;
+            this.shutdownService = shutdownService ?? new ShutdownService();
 
             NavigationService<HomeViewModel> navigationServiceHomeView = new NavigationService<HomeViewModel>(navigationStore, () => new HomeViewModel(searchStore, navigationStore));
             NavigateToHomeViewCommand = new NavigateCommand<HomeViewModel>(navigationServiceHomeView);
             LookupCurrentRankCommand = new LookupCurrentRankCommand(this, searchStore);
             StartRankCheckerCommand = new StartRankCheckerCommand(this, searchStore);
 
-            rankRefreshService = new RankRefreshService(httpRequestService);
-            rankRefreshService.RankUpdated += OnRankUpdated;
+            rankMonitorService = new RankMonitorService(httpRequestService);
+            rankMonitorService.RankUpdated += OnRankUpdated;
+            rankMonitorService.RankStalled += HandleRankStalled;
         }
 
         // Start checker loop
@@ -90,14 +105,14 @@ namespace BF6PowerSaver.ViewModels
             // Set StartRank before checking
             SetStartRank();
             // Begin checking every minute
-            if (!rankRefreshService.IsRunning)
-                rankRefreshService.Start(PersonalId, TimeSpan.FromSeconds(60));
+            if (!rankMonitorService.IsRunning)
+                rankMonitorService.Start(PersonalId, TimeSpan.FromSeconds(60));
         }
 
         // Stop checker loop
         public async void StopAutoRefresh()
         {
-            await rankRefreshService.StopAsync();
+            await rankMonitorService.StopAsync();
         }
 
         void OnRankUpdated(int newRank)
@@ -106,8 +121,6 @@ namespace BF6PowerSaver.ViewModels
         }
 
         // Set StartRank
-
-
         public async void SetStartRank()
         {
             StartRank = await httpRequestService.GetRankFromId(PersonalId);
@@ -117,6 +130,22 @@ namespace BF6PowerSaver.ViewModels
         public async void LookupCurrentRank()
         {
             CurrentRank = await httpRequestService.GetRankFromId(PersonalId);
+        }
+
+        private async void HandleRankStalled(int stalledRank)
+        {
+            bool shouldShutdown = false;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (System.Diagnostics.Debugger.IsAttached) return;
+                if (!AutoShutdownEnabled) return;
+                shouldShutdown = true;
+            });
+
+            if (!shouldShutdown) return;
+
+            // perform shutdown request and await it
+            await shutdownService.RequestShutdownAsync(30).ConfigureAwait(false);
         }
     }
 }
